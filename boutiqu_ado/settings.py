@@ -155,3 +155,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# link up our static files
+# this needs to be a tuple
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+MEDIA_URL = '/media/'
+# THIS IS WHERE ALL MEDIA FILES WILL GO
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
