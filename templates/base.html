@@ -119,6 +119,26 @@
 				</ul>
 			</div>
 		</div>
+        <div class="row bg-white">
+            <nav class="navbar navbar-expand-lg navbar-light w-100">
+            <!-- Button toggle for the main navigation -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <!-- Call on the includes directory where we have snippets of code to pull in
+                This keeps our code tidy -->
+                {% include 'includes/mobile_top_header.html' %}
+                {% include 'includes/main_nav.html' %}
+            </nav>
+        </div>
+
+        <!-- Free shipping banner -->
+        <div id="delivery-banner" class="row text-center">
+            <div class="col bg-black text-white">
+                <!-- free shipping threshold will be setup when we setup the products -->
+                <h4 class="logo-font my-1">Free delivery on orders over ${{ free_delivery_threshold }}!</h4>                
+            </div>            
+        </div>
     </header>
 
     {% if messages %}
