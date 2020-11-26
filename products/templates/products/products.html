@@ -10,12 +10,99 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
+    <!-- Add a white overlay to cover up the image background -->
+    <div class="overlay"></div>
+    <div class="container-fluid">
+        <!-- 2 rows -->
+        <!-- row for page title and any selected categories -->
         <div class="row">
-            <div class="col">
-                <!-- Insert products from the context in the products view -->
-                {{ products }}
+            <div class="col text-center mt-3">
+                <h2 class="logo-font">Products</h2>
+                <hr class="w-50 mb-1">
+            </div>
+        </div>
+        <!-- row for the products -->
+        <div class="row">
+            <div class="product-container col-10 offset-1">
+                <div class="row mt-1 mb-2"></div>
+                <div class="row">
+                    <!-- Iterate over products -->
+                    {% for product in products %}
+                        <!-- create a new col with a bootstrap card -->
+                        <!-- products will stack on mobile / side-by-side on small and medium / 3 cols on large and 4 cols on xl -->
+                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
+                            <div class="card h-100 border-0">
+
+                                <!-- top of card - image  -->
+                                {% if product.image %}
+                                <a href="">
+                                    <img class="card-img-top img-fluid" src="{{ product.image.url }}" alt="{{ product.name }}">
+                                </a>
+                                {% else %}
+                                <a href="">
+                                    <img class="card-img-top img-fluid" src="{{ MEDIA_URL }}noimage.png" alt="{{ product.name }}">
+                                </a>
+                                {% endif %}
+
+                                <!-- card body - product name -->
+                                <div class="card-body pb-0">
+                                    <p class="mb-0">{{ product.name }}</p>
+                                </div>
+
+                                <!-- card footer - price and rating -->
+                                <div class="card-footer bg-white pt-0 border-0 text-left">
+                                    <div class="row">
+                                        <div class="col">
+                                            <p class="lead mb-0 text-left font-weight-bold">${{ product.price }}</p>
+                                            {% if product.rating %}
+                                                <small class="text-muted"><i class="fas fa-star mr-1"></i>{{ product.rating }} / 5</small>
+                                            {% else %}
+                                                <small class="text-muted">No Rating</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- This is to insert a hr after each row -->
+                        <!-- Because the rows can change this code divides the iteration counter -->
+                        <!-- This tells us how many cards or columns have been placed on each row -->
+                        
+                        <!-- Not really needed as everything is divisable by 1 -->
+                        <!-- So in this case hr will display on XS screens -->
+                        {% if forloop.counter|divisibleby:1 %}
+                            <div class="col-12 d-sm-none mb-5">
+                                <hr>
+                            </div>
+                        {% endif %}        
+
+                        <!-- if divisable by 2, then there are 2 columns -->  
+                        <!-- so in this case - wont show on XS, will show on SMALL & MED But wont show on LARGE -->              
+                        {% if forloop.counter|divisibleby:2 %}
+                            <div class="col-12 d-none d-sm-block d-md-block d-lg-none mb-5">
+                                <hr>
+                            </div>
+                        {% endif %}
+
+                        <!-- If divisable by 3, then there are 3 columns -->
+                        <!-- So in this case it will only show on LARGE screens -->
+                        {% if forloop.counter|divisibleby:3 %}
+                            <div class="col-12 d-none d-lg-block d-xl-none mb-5">
+                                <hr>
+                            </div>
+                        {% endif %}
+
+                        <!-- if divisable by 4, then there are 4 columns -->
+                        <!-- Then only show on XL screens -->
+                        {% if forloop.counter|divisibleby:4 %}
+                            <div class="col-12 d-none d-xl-block mb-5">
+                                <hr>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
+    
 {% endblock %}
