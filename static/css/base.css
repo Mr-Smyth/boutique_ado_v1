@@ -104,3 +104,16 @@ body {
         padding-top: 164px;
     }
 }
+
+/* Pad and smaller for when the navbar is collapsed on mobile */
+@media (max-width: 991px) {
+
+    .header-container {
+        padding-top: 116px;
+    }
+
+    /* Calculate the body height on mobile which has a smaller header due to the changed layout */
+    body {
+        height: calc(100vh - 116px);
+    }
+}
