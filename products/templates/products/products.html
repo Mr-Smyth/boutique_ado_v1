@@ -153,5 +153,52 @@
             </div>
         </div>
     </div>
+    <!-- Back to top button -->
+    <div class="btt-button shadow-sm rounded-0 border border-black">
+        <a class="btt-link d-flex h-100">
+            <i class="fas fa-arrow-up text-black mx-auto my-auto"></i>
+        </a>
+    </div>
     
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super}}
+    <!-- block.super ensures that this code is appended to, rather than replace any existing js code  -->
+    <script type="text/javascript">
+
+    /* Back to top button functionality */
+    document.querySelector('.btt-link').addEventListener('click', function (ev) {
+        window.scrollTo(0,0);
+    });
+    
+    /* Sort selector functionality */
+    document.querySelector('#sort-selector').addEventListener('change', function (ev) {
+        var currentUrl = new URL(window.location);
+
+        console.log(ev.target.value);
+        var selectedVal = ev.target.value;
+        if(selectedVal != "reset"){
+            /* we can get the req sort by splitting the value and taking the first index */
+            var sort = selectedVal.split('_')[0];
+            /* Second index will be the direction */
+            var direction = selectedVal.split('_')[1];
+
+            /* now we have the required sort and direction we can set them in the url */
+            currentUrl.searchParams.set("sort", sort);
+            currentUrl.searchParams.set("direction", direction)
+
+            /* Replace the url */
+            window.location.replace(currentUrl);
+        }
+        /* else if the user selects reset 
+        Then delete the parameters and replace the location*/
+        else{
+            currentUrl.searchParams.delete("sort");
+            currentUrl.searchParams.delete("direction")
+
+            window.location.replace(currentUrl);
+        }
+    });
+    </script>
 {% endblock %}
