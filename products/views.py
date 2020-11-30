@@ -38,11 +38,18 @@ def all_products(request):
                 # lower_name=Lower('name') and sort based on it
                 products = products.annotate(lower_name=Lower('name'))
 
+            # here we set the category to order by category name
+            if sortkey == 'category':
+                sortkey = 'category__name'
+
             if 'direction' in request.GET:
                 direction = request.GET['direction']
                 if direction == 'desc':
                     sortkey = f'-{sortkey}'
-            # --> this becomes products.order_by('lower_name') now
+
+            # Here we tell the template how to order the products
+            # --> this becomes products.order_by('whatever the value of
+            # sortkey is')
             products = products.order_by(sortkey)
 
         # Check for category in GET
@@ -71,6 +78,7 @@ def all_products(request):
             # Pass the query to the filter method to get results.
             products = products.filter(queries)
 
+    # if no sorting has been selected this will return None_None
     current_sorting = f'{sort}_{direction}'
 
     # Put the products into the context
@@ -80,6 +88,7 @@ def all_products(request):
         'search_term': query,
         # return a list of chosen categories
         'current_categories': categories,
+        # if no sorting has been selected this will return None_None
         'current_sorting': current_sorting,
 
     }
