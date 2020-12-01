@@ -28,6 +28,10 @@
             <div class="col">
             <!-- check is anything in the bag -->
                 {% if bag_items %}
+                    {{ bag_items }}
+                    <br>
+                    <br>
+                    {{ request.session.bag }}
                     <div class="table-responsive rounded">
                         <!-- The table to display the shopping bag items -->
                         <table class="table table-sm table-borderless">

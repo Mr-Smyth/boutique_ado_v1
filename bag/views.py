@@ -17,17 +17,37 @@ def add_to_bag(request, item_id):
     # Get the redirect url from the form so we know where to redirect to
     # once the form has been submitted
     redirect_url = request.POST.get('redirect_url')
+    # Handle size
+    size = None
+    if 'product_size' in request.POST:
+        size = request.POST['product_size']
     # get the bag variable in session storage, or inializing it to an
     # empty dictionary if it doesnt already exist
     bag = request.session.get('bag', {})
 
-    # now we have a bag object(dict), we can stuff the item_id into it
-    # if the item is in the bag already - increment the qty for the item
-    if item_id in list(bag.keys()):
-        bag[item_id] += quantity
-    # else add the item to the bag as a key and set the quantity as its value
+    # change structure of bag to handle sizes
+    if size:
+        # if the item id is in the bag already
+        if item_id in list(bag.keys()):
+            # if the item is in the bag and the item has the same size as the
+            # one we are adding
+            if size in bag[item_id]['items_by_size'].keys():
+                # then just increment the quantity
+                bag[item_id]['items_by_size'][size] += quantity
+            # else just grab the size and set the quantity
+            else:
+                bag[item_id]['items_by_size'][size] = quantity
+        else:
+            bag[item_id] = {'items_by_size': {size: quantity}}
     else:
-        bag[item_id] = quantity
+        # now we have a bag object(dict), we can stuff the item_id into it
+        # if the item is in the bag already - increment the qty for the item
+        if item_id in list(bag.keys()):
+            bag[item_id] += quantity
+        # else add the item to the bag as a key and set the quantity as its
+        # value
+        else:
+            bag[item_id] = quantity
 
     # put the bag variable into the session, which itself is just a python
     # dictionary
