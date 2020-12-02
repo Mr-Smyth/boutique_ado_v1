@@ -1,0 +1,68 @@
+<script type="text/javascript">
+
+    // function to handle disabling buttons below 2 and over 98
+    function handleEnableDisable(itemId) {
+        const ourQuantity = document.querySelector(`#id_qty_${itemId}`);
+        const currentValue = parseInt(ourQuantity.value);
+        plus = document.querySelector('button.increment-qty')
+        minus = document.querySelector('button.decrement-qty');
+        if (currentValue < 2) {
+            minus.disabled = true;
+        }
+        else if (currentValue > 98) {
+            plus.disabled = true;
+        }
+        else {
+            minus.disabled = false;
+            plus.disabled = false;
+        }
+    }
+
+    // Ensure proper enabling/disabling of all inputs on page load
+    const allQtyTypes = document.querySelectorAll('.qty_input');
+    for(let i = 0; i < allQtyTypes.length; i++) {
+        let itemId = allQtyTypes[i].getAttribute('data-item_id')
+        handleEnableDisable(itemId);
+    }
+
+    // Check enable/disable each time a value changes
+    for(let i = 0; i < allQtyTypes.length; i++) {
+        allQtyTypes[i].addEventListener('change', function() {
+            let itemId = allQtyTypes[i].getAttribute('data-item_id')
+            handleEnableDisable(itemId);
+        });
+    }
+
+    // Increment Quantity
+    increment = document.querySelector('.increment-qty');
+    increment.addEventListener("click", function(e){
+        e.preventDefault();
+        // After click - find the closest input box
+        // closest searches up the dom
+        // Then we use the closestGroup to search within that block for an element with the class 'qty_input'
+            Then we grab its value add one to it and reassign it to the quantity input element */
+        const closestGroup = increment.closest('.input-group')
+        let closestInput = closestGroup.querySelector('.qty_input');
+        const newValue = parseInt(closestInput.value) + 1;
+        closestInput.value = newValue;
+
+        // call the disable button check
+        let itemId = increment.getAttribute('data-item_id')
+        handleEnableDisable(itemId);
+    });
+
+    // Decrement Quantity
+    decrement = document.querySelector('.decrement-qty');
+    decrement.addEventListener("click", function(e){
+        e.preventDefault();
+        const closestGroup = decrement.closest('.input-group')
+        let closestInput = closestGroup.querySelector('.qty_input');
+        const newValue = parseInt(closestInput.value) - 1;
+        closestInput.value = newValue;
+
+        // call the disable button check
+        let itemId = increment.getAttribute('data-item_id')
+        handleEnableDisable(itemId);
+    });
+
+</script>
