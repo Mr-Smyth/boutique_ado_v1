@@ -156,43 +156,58 @@
 {% include 'products/includes/quantity_input_script.html' %}
 
 <script type="text/javascript">
+
+// helper method get prev sibling (from vanillajs tools)
+const getPreviousSibling = function (elem, selector) {
+
+	// Get the next sibling element
+	let sibling = elem.previousElementSibling;
+
+	// If there's no selector, return the first sibling
+	if (!selector) return sibling;
+
+	// If the sibling matches our selector, use it
+	// If not, jump to the next sibling and continue the loop
+	while (sibling) {
+		if (sibling.matches(selector)) return sibling;
+		sibling = sibling.previousElementSibling;
+	}
+};
+
 // handle clicking update
-const update = document.querySelector('.update-link');
-update.addEventListener("click", function(e){
-    const form = document.querySelector('form.update-form');
-    form.submit();
-});
+const update = document.querySelectorAll('.update-link');
+for(let i = 0; i < update.length; i++) {
+    update[i].addEventListener("click", function(e){
+        form = getPreviousSibling(update[i], '.update-form');
+        form.submit();
+    });
+}
+
 
 /* Handle Remove an item */
 const remove = document.querySelectorAll('.remove-item');
-for(let i = 0; i < remove.length; i++) {
-    remove[i].addEventListener("click", function(e){
-        // Were going to post stuff to a url
-        // render the actual csrf token using double curly's
-        const csrfToken = "{{ csrf_token }}";
-        // we need the item id and the size
-        const itemId = this.getAttribute('id').split('remove_')[1];
-        const size = this.getAttribute('product_size');
-        // set up a URL
-        const url = `/bag/remove/${itemId}/`;
-        // the data object we post to the server
-        const data = {'csrfmiddlewaretoken': csrfToken, 'product_size': size};
+remove.forEach(item => item.addEventListener('click', event => {
+    event.preventDefault();
 
-        // Post the POST
-        fetch(url, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                "X-CSRFToken": csrfToken,
-            }
-        }).then(res => {
-            console.log(data);
-            console.log("request complete", res);
+    const csrfToken = "{{ csrf_token }}";
+    const itemID = item.getAttribute('id').split('remove_')[1];
+    const size = item.dataset.product_size;
+
+    fetch(`/bag/remove/${itemID}/`, {
+        method: "POST",
+        body: `csrfmiddlewaretoken=${csrfToken}&product_size=${size}`,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            "X-CSRFToken": csrfToken,
+        }
+    }).then(res => {
+        console.log("request complete", res);
+        if  (res.status === 200) {
+            // remove the item from the html instead of refreshing the page
             location.reload();
-        });
+        }
     });
-}
+}));
 
 </script>
 

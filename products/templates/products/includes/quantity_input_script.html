@@ -4,8 +4,8 @@
     function handleEnableDisable(itemId) {
         const ourQuantity = document.querySelector(`#id_qty_${itemId}`);
         const currentValue = parseInt(ourQuantity.value);
-        const plus = document.querySelector('button.increment-qty');
-        const minus = document.querySelector('button.decrement-qty');
+        const plus = document.querySelector(`#increment-qty_${itemId}`);
+        const minus = document.querySelector(`#decrement-qty_${itemId}`);
         if (currentValue < 2) {
             minus.disabled = true;
         }
@@ -34,35 +34,40 @@
     }
 
     // Increment Quantity
-    const increment = document.querySelector('.increment-qty');
-    increment.addEventListener("click", function(e){
-        e.preventDefault();
-        // After click - find the closest input box
-        // closest searches up the dom
-        // Then we use the closestGroup to search within that block for an element with the class 'qty_input'
-        // Then we grab its value add one to it and reassign it to the quantity input element
-        const closestGroup = increment.closest('.input-group');
-        let closestInput = closestGroup.querySelector('.qty_input');
-        const newValue = parseInt(closestInput.value) + 1;
-        closestInput.value = newValue;
+    const increment = document.querySelectorAll('.increment-qty');
+    for (i = 0; i < increment.length; i++) {
+        increment[i].addEventListener("click", function(e){
+            e.preventDefault();
+            // After click - find the closest input box
+            // closest searches up the dom
+            // Then we use the closestGroup to search within that block for an element with the class 'qty_input'
+            // Then we grab its value add one to it and reassign it to the quantity input element
+            const closestGroup = this.closest('.input-group');
+            let closestInput = closestGroup.querySelector('.qty_input');
+            const newValue = parseInt(closestInput.value) + 1;
+            closestInput.value = newValue;
 
-        // call the disable button check
-        let itemId = increment.getAttribute('data-item_id');
-        handleEnableDisable(itemId);
-    });
-
+            // call the disable button check
+            let itemId = this.getAttribute('data-item_id');
+            handleEnableDisable(itemId);
+        });
+    }
+    
     // Decrement Quantity
-    const decrement = document.querySelector('.decrement-qty');
-    decrement.addEventListener("click", function(e){
-        e.preventDefault();
-        const closestGroup = decrement.closest('.input-group');
-        let closestInput = closestGroup.querySelector('.qty_input');
-        const newValue = parseInt(closestInput.value) - 1;
-        closestInput.value = newValue;
+    const decrement = document.querySelectorAll('.decrement-qty');
+    for (i = 0; i < decrement.length; i++) {
+        decrement[i].addEventListener("click", function(e){
+            e.preventDefault();
+            const closestGroup = this.closest('.input-group');
+            let closestInput = closestGroup.querySelector('.qty_input');
+            const newValue = parseInt(closestInput.value) - 1;
+            closestInput.value = newValue;
 
-        // call the disable button check
-        let itemId = increment.getAttribute('data-item_id');
-        handleEnableDisable(itemId);
-    });
+            // call the disable button check
+            let itemId = this.getAttribute('data-item_id');
+            handleEnableDisable(itemId);
+        });
+    }
+    
 
 </script>
