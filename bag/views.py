@@ -60,6 +60,10 @@ def adjust_bag(request, item_id):
     """ Adjust the quantities of a specified product in the shopping bag """
 
     # get the qty from the form
+    post = request.POST
+    print("~~~~~~~~~~~~~~~~~~~~~~~  im the post ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print(post)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     quantity = int(request.POST.get('quantity'))
     # Handle size
     size = None
@@ -108,6 +112,11 @@ def remove_from_bag(request, item_id):
     try:
         # Handle size
         size = None
+        post = request.POST
+        print("~~~~~~~~~~~~~~~~~~~~~~~  im the post ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(post)
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
         if 'product_size' in request.POST:
             size = request.POST['product_size']
         # get the bag variable in session storage, or inializing it to an
@@ -119,13 +128,22 @@ def remove_from_bag(request, item_id):
         if size:
             # then delete that size
             del bag[item_id]['items_by_size'][size]
+            print("Ive just deleted a size")
             # if thats the only size they had - delete the whole item too
             if not bag[item_id]['items_by_size']:
                 bag.pop(item_id)
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+                print("Im in line 125 - look at me!! - im deleting everything!!!")
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
 
         # if there is no size - remove entirely using pop
         else:
             bag.pop(item_id)
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("line 131 - im popping the whole item")
+            print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
 
         # put the bag variable into the session, which itself is just a python
         # dictionary
