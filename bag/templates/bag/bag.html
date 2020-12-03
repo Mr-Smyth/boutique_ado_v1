@@ -62,7 +62,8 @@
                                     <!-- quantity -->
                                     <!-- form to handle the adjusting of a products quantity in the shopping bag -->
                                     <td class="py-3 w-25">
-                                        <form class="form update-form" method="POST" action="">
+                                        <!-- This form will be submitted by the javascript in the foot of the page -->
+                                        <form class="form update-form" method="POST" action="{% url 'adjust_bag' item.item_id %}">
                                             {% csrf_token %}
                                             <div class="form-group">
                                                 <div class="input-group">
@@ -94,7 +95,7 @@
                                         </form>
                                         <!-- The update bag links - Javascript required in foot of page below-->
                                         <a class="update-link text-info"><small>Update</small></a>
-                                        <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-size="{{ item.size }}"><small>Remove</small></a>
+                                        <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-product_size="{{ item.size }}"><small>Remove</small></a>
                                     </td>
                                     <!-- subtotal - will need to be set later - for now its product.price -->
                                     <td class="py-3">
@@ -163,28 +164,34 @@ update.addEventListener("click", function(e){
 });
 
 /* Handle Remove an item */
-const remove = document.querySelector('.remove-item');
-remove.addEventListener("click", function(e){
-    // Were going to post stuff to a url
-    // render the actual csrf token using double curly's
-    const csrfToken = "{{ csrf_token }}";
-    // we need the item id and the size
-    const itemId = remove.getAttribute('id').split('remove_')[1];
-    const size = remove.getAttribute('size');
-    // set up a URL
-    const url = `/bag/remove/${itemId}`;
-    // the data object we post to the server
-    const data = {'csrfmiddlewaretoken': csrfToken, 'size': size};
+const remove = document.querySelectorAll('.remove-item');
+for(let i = 0; i < remove.length; i++) {
+    remove[i].addEventListener("click", function(e){
+        // Were going to post stuff to a url
+        // render the actual csrf token using double curly's
+        const csrfToken = "{{ csrf_token }}";
+        // we need the item id and the size
+        const itemId = this.getAttribute('id').split('remove_')[1];
+        const size = this.getAttribute('product_size');
+        // set up a URL
+        const url = `/bag/remove/${itemId}/`;
+        // the data object we post to the server
+        const data = {'csrfmiddlewaretoken': csrfToken, 'product_size': size};
 
-    // Post the POST
-    fetch(url, {
-        method: "POST",
-        body: JSON.stringify(data)
-    }).then(res => {
-        console.log("request complete", res);
-        location.reload();
+        // Post the POST
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify(data)
+        }).then(res => {
+            console.log("request complete", res);
+            location.reload();
+        });
     });
-});
+}
 
 </script>
+
 {% endblock %}
