@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
+{% load bag_tools %}
+
+
 
 {% block page_header %}
     <div class="container header-container">
@@ -97,9 +100,10 @@
                                         <a class="update-link text-info"><small>Update</small></a>
                                         <a class="remove-item text-danger float-right" id="remove_{{ item.item_id }}" data-product_size="{{ item.size }}"><small>Remove</small></a>
                                     </td>
-                                    <!-- subtotal - will need to be set later - for now its product.price -->
+                                    <!-- subtotal  -->
                                     <td class="py-3">
-                                        <p class="my-0">${{ item.product.price }}</p>
+                                    <!-- use our custom filter from bag_tools to insert the price as the first argument and the qty as the second -->
+                                        <p class="my-0">${{ item.product.price | calc_subtotal:item.quantity }}</p>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -159,13 +163,10 @@
 
 // helper method get prev sibling (from vanillajs tools)
 const getPreviousSibling = function (elem, selector) {
-
 	// Get the next sibling element
 	let sibling = elem.previousElementSibling;
-
 	// If there's no selector, return the first sibling
 	if (!selector) return sibling;
-
 	// If the sibling matches our selector, use it
 	// If not, jump to the next sibling and continue the loop
 	while (sibling) {
@@ -176,19 +177,21 @@ const getPreviousSibling = function (elem, selector) {
 
 // handle clicking update
 const update = document.querySelectorAll('.update-link');
-for(let i = 0; i < update.length; i++) {
-    update[i].addEventListener("click", function(e){
-        form = getPreviousSibling(update[i], '.update-form');
-        form.submit();
-    });
-}
-
+update.forEach(butt => butt.addEventListener('click', event => {
+    form = getPreviousSibling(butt, '.update-form');
+    form.submit();
+    console.log("happy");
+}));
 
 /* Handle Remove an item */
+// grab the remove item button
 const remove = document.querySelectorAll('.remove-item');
+// loop over the possible buttons - as there can be multiple
 remove.forEach(item => item.addEventListener('click', event => {
+    // because they are a button in a form - prevent submit
     event.preventDefault();
 
+    // some req variables
     const csrfToken = "{{ csrf_token }}";
     const itemID = item.getAttribute('id').split('remove_')[1];
     const size = item.dataset.product_size;
