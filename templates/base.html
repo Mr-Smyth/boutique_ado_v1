@@ -141,7 +141,22 @@
     </header>
 
     {% if messages %}
-	    <div class="message-container"></div>
+        <div class="message-container">
+        <!-- loop over any messages sent back from the server -->
+            {% for message in messages %}
+                {% with message.level as level %}
+                    {% if level == 40 %}
+                        {% include 'includes/toasts/toast_error.html' %}
+                    {% elif level == 30 %}
+                        {% include 'includes/toasts/toast_warning.html' %}
+                    {% elif level == 25 %}
+                        {% include 'includes/toasts/toast_success.html' %}
+                    {% else %}
+                        {% include 'includes/toasts/toast_info.html' %}
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
+        </div>
     {% endif %}
 
     {% block page_header %} <!-- To act as an extra page header if required -->
@@ -151,6 +166,12 @@
 	{% endblock %}
 
     {% block postloadjs %}
+    <script type="text/javascript">
+    /* call the toast method from bootstrap with an option of show, on any elements with the toast class */
+    /* putting this in the base template means that every page that loads will immediately call the show option
+    on all toasts that have been rendered in the messages container  */
+        $('.toast').toast('show');
+    </script>
 	{% endblock %}
 
 </body>

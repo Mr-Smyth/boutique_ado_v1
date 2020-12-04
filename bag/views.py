@@ -1,4 +1,7 @@
 from django.shortcuts import render, redirect, reverse, HttpResponse
+from django.contrib import messages
+
+from products.models import Product
 
 
 def view_bag(request):
@@ -9,6 +12,9 @@ def view_bag(request):
 
 def add_to_bag(request, item_id):
     """ Add a quantity of the specified product to the shopping bag """
+
+    # for messages - first get the product
+    product = Product.objects.get(pk=item_id)
 
     # get the qty from the form
     # we need to convert it to an int, as it will come from the form as a
@@ -48,6 +54,11 @@ def add_to_bag(request, item_id):
         # value
         else:
             bag[item_id] = quantity
+            # use the messages.success function to add a message to the
+            # request object and use some string formatting to let the
+            # user know they have added this product to their bag
+            messages.success(
+                request, f'You have added {product.name} to your bag')
 
     # put the bag variable into the session, which itself is just a python
     # dictionary
