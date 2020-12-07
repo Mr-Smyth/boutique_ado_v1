@@ -23,6 +23,8 @@ def checkout(request):
     # create the context creating the order form
     context = {
         'order_form': order_form,
+        'stripe_public_key': 'pk_test_51HvpttD51opv9Orqgpzt2a9kb4dfMFKGlGIKEQkF2BZilfiuDy01vBDX3IdUPladVSP8Qyow702BZk7xwynKO0wR009gEbO3iY',
+        'client_secret': 'test client secret',
     }
 
     # render the whole lot out
