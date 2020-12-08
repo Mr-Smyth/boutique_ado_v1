@@ -42,7 +42,7 @@ class Order(models.Model):
         # the default behaviour is to add a new field to the query set called
         # lineitem_total__sum, which we can then get, then set the order
         # total to that
-        self.order_total = self.lineitems.aggregate(Sum('lineitem_total'))['lineitem_total__sum']
+        self.order_total = self.lineitems.aggregate(Sum('lineitem_total'))['lineitem_total__sum'] or 0
         # calculate the delivery charge
         if self.order_total < settings.FREE_DELIVERY_THRESHOLD:
             self.delivery_cost = self.order_total * settings.STANDARD_DELIVERY_PERCENTAGE / 100

@@ -101,7 +101,7 @@ form.addEventListener('submit', function(ev) {
             // so if the status of the payment intent comes back as succeeded
             if (result.paymentIntent.status === 'succeeded') {
                 // then lets submit the form
-                form.onsubmit();
+                form.submit();
             }
         }
     });
