@@ -91,10 +91,12 @@ form.addEventListener('submit', function(ev) {
             <span class="icon" role="alert">
                 <i class="fas fa-times"></i>
             </span>
-            <span>${event.error.message}</span>`;
+            <span>${result.error.message}</span>`;
             $(errorDiv).html(html);
 
             // if there is an error - we would need to re-enable the submit button
+            $('#payment-form').fadeToggle(100);
+            $('#loading-overlay').fadeToggle(100);
             card.update({ 'disabled': false});
             $('#submit-button').attr('disabled', false);
         } else {
