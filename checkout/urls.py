@@ -8,6 +8,11 @@ from .webhooks import webhook
 urlpatterns = [
     path('', views.checkout, name='checkout'),
     # Take the order number as an argument from views.checkout_success
-    path('checkout_success/<order_number>', views.checkout_success, name='checkout_success'),
+    path('checkout_success/<order_number>',
+         views.checkout_success,
+         name='checkout_success'),
+    path('cache_checkout_data/',
+         views.cache_checkout_data,
+         name='cache_checkout_data'),
     path('wh/', webhook, name='webhook'),
 ]
