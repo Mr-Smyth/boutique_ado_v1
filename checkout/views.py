@@ -76,7 +76,22 @@ def checkout(request):
         # if the order is valid
         if order_form.is_valid():
             # save the order
-            order = order_form.save()
+            # prevent multiple save events from being executed on the database by adding (commit=False)
+            order = order_form.save(commit=False)
+
+            # update the view to add the extra 2 fields that deal with
+            # duplicating orders, when the form is submitted
+            # here we are getting the client_secret back from the hidden
+            # element in the checkout.html
+            pid = request.POST.get('client_secret').split('_secret')[0]
+            order.stripe_pid = pid
+            # we already have the shopping bag here ??????????
+            # so adding that to the model is simple
+            # dump it to a JSON string
+            # and set it on the order (prefix.order)
+            order.original_bag = json.dumps(bag)
+            # save the order
+            order.save()
 
             # Now iterate over the bag items, to create each line item of the
             # order
