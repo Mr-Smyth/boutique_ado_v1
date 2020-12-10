@@ -31,7 +31,6 @@ class OrderForm(forms.ModelForm):
             'full_name': 'Full Name',
             'email': 'Email Address',
             'phone_number': 'Phone Number',
-            'country': 'Country',
             'postcode': 'Postal Code',
             'town_or_city': 'Town or City',
             'street_address1': 'Street Address 1',
@@ -46,12 +45,13 @@ class OrderForm(forms.ModelForm):
         # then iterate through the forms fields to add a * to any required
         # fields on the model
         for field in self.fields:
-            if self.fields[field].required:
-                placeholder = f'{placeholders[field]} *'
-            else:
-                # then set the placeholder attribute from the dictionary above
-                placeholder = placeholders[field]
-            self.fields[field].widget.attrs['placeholder'] = placeholder
+            if field != 'country':
+                if self.fields[field].required:
+                    placeholder = f'{placeholders[field]} *'
+                else:
+                    # then set the placeholder attribute from the dictionary above
+                    placeholder = placeholders[field]
+                self.fields[field].widget.attrs['placeholder'] = placeholder
 
             # add the stripe-style-input css class - we will add to later
             self.fields[field].widget.attrs['class'] = 'stripe-style-input'

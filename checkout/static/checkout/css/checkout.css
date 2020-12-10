@@ -37,6 +37,16 @@
     color: #000;
     border: 1px solid #000;
 }
+/* ---------------------- select boxes */
+
+/* set all select elements and their option children to be black by default.
+But set the select boxes colour to grey, if it's invalid due to not having anything selected.
+And we'll use the same colour for the option element that has an empty value attribute.
+Which will be the blank one provided by the model that just says country. */
+select:invalid,
+select option[value=""] {
+    color: #aab7c4 !important;
+}
 
 /* --------------------- loading spinner css */
 #loading-overlay {
