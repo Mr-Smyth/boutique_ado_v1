@@ -8,8 +8,12 @@ if(!countrySelected) {
     // we want it to be that grey colour
     $('#id_default_country').css('color', '#aab7c4');
 };
+// capture the change event
 $('#id_default_country').change(function() {
+    // everytime it changes grab the value of it
     countrySelected = $(this).val();
+
+    // then determine the propper colour
     if(!countrySelected) {
         $(this).css('color', '#aab7c4');
     } else {

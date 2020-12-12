@@ -1,3 +1,4 @@
+/* just give a max height in case the user has a lot of orders */
 .order-history {
     max-height: 416px; /* height of profile form + submit button */
     overflow-y: auto;

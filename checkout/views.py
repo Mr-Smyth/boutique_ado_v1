@@ -1,3 +1,4 @@
+
 from django.shortcuts import (
     render, redirect, reverse, get_object_or_404, HttpResponse
 )
@@ -7,7 +8,10 @@ from django.conf import settings
 
 from .forms import OrderForm
 from .models import Order, OrderLineItem
+
 from products.models import Product
+from profiles.models import UserProfile
+from profiles.forms import UserProfileForm
 from bag.contexts import bag_contents
 
 import stripe
@@ -210,6 +214,38 @@ def checkout_success(request, order_number):
     # use the order number to get the order created in the previous view -
     # which we will send back to the template
     order = get_object_or_404(Order, order_number=order_number)
+
+    # handle linking of order to a user profile
+
+    # if the user is authenticated - then they will have a profile
+    if request.user.is_authenticated:
+        # so then get the users profile
+        profile = UserProfile.objects.get(user=request.user)
+        # Attach the user's profile to the order and save it
+        order.user_profile = profile
+        order.save()
+
+        # Save the user's info
+        # we can use save_info here - so if its ticked(true) - then we can go
+        # and use their info and save it to their profile
+        if save_info:
+            profile_data = {
+                # these keys will match the fields on the user profile model
+                'default_phone_number': order.phone_number,
+                'default_country': order.country,
+                'default_postcode': order.postcode,
+                'default_town_or_city': order.town_or_city,
+                'default_street_address1': order.street_address1,
+                'default_street_address2': order.street_address2,
+                'default_county': order.county,
+            }
+            # create an instance of the user profile form, using the profile
+            # data. And telling it we're going to update the profile we've
+            # obtained above. And if the form is valid just save it.
+            user_profile_form = UserProfileForm(profile_data, instance=profile)
+            if user_profile_form.is_valid():
+                user_profile_form.save()
+
     # then create a success message to let the user know everything worked
     # and that we will send an email
     messages.success(request, f'Order successfully processed! \
