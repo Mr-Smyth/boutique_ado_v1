@@ -80,7 +80,8 @@ def checkout(request):
         # if the order is valid
         if order_form.is_valid():
             # save the order
-            # prevent multiple save events from being executed on the database by adding (commit=False)
+            # prevent multiple save events from being executed on the database
+            # by adding (commit=False)
             order = order_form.save(commit=False)
 
             # update the view to add the extra 2 fields that deal with

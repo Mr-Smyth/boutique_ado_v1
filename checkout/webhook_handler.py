@@ -3,6 +3,7 @@ from django.http import HttpResponse
 
 from .models import Order, OrderLineItem
 from products.models import Product
+from profiles.models import UserProfile
 
 import json
 import time
@@ -63,6 +64,40 @@ class StripeWH_Handler:
         for field, value in shipping_details.address.items():
             if value == "":
                 shipping_details.address[field] = None
+
+        # remember that we added that handy key in the payment
+        # intent called metadata which contains the username of the user that
+        # placed the order. It also contains whether or not they wanted to
+        # save their info so let's handle that here.
+
+        # -----------------------------------------------
+        # Update profile information if save_info was checked
+        # start with profile = none just so we can allow anonymous users to
+        # checkout
+        profile = None
+        # get the username from metadata
+        username = intent.metadata.username
+        # if the name is not anonymous - then it must be authenticated
+        # We could also use request.user here, since we added the request
+        # object in the init method above. But this shows you an alternative
+        # way to check if the user is authenticated.
+        if username != 'AnonymousUser':
+            # so lets get their profile using their username
+            profile = UserProfile.objects.get(user__username=username)
+            # check metadat to see if save info is checked
+            if save_info:
+                # then update their profile by adding the shipping details as
+                # their default delivery information
+                profile.default_phone_number = shipping_details.phone
+                profile.default_country = shipping_details.address.country
+                profile.default_postcode = shipping_details.address.postal_code
+                profile.default_town_or_city = shipping_details.address.city
+                profile.default_street_address1 = shipping_details.address.line1
+                profile.default_street_address2 = shipping_details.address.line2
+                profile.default_county = shipping_details.address.state
+                # save the profile
+                profile.save()
+        # -------------------------------------------------
 
         # Most of the time when a user checks out, everything will go well and
         # the form will be submitted so the order should already be in our
@@ -136,11 +171,19 @@ class StripeWH_Handler:
             order = None
             try:
                 # we dont have a form to save in this webhook to create the
-                # order - but we can do it hust as easily
+                # order - but we can do it just as easily
                 # with Order.objects.create() using all the data in the
                 # payment intent - as it came from the form originally anyway
                 order = Order.objects.create(
                     full_name=shipping_details.name,
+                    # since we've already got their profile -
+                    # (see from l76 above) and if they weren't logged
+                    # in it will just be none. We can simply
+                    # add it to their order when the webhook creates it. In
+                    # this way, the webhook handler can create orders for both
+                    # authenticated users by attaching their profile. And for
+                    # anonymous users by setting that field to none.
+                    user_profile=profile,
                     email=billing_details.email,
                     phone_number=shipping_details.phone,
                     country=shipping_details.address.country,
