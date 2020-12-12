@@ -174,12 +174,38 @@ def checkout(request):
             currency=settings.STRIPE_CURRENCY,
         )
 
-        print(intent)
-
         # create a new instance of our order form (forms.py)
         order_form = OrderForm()
 
         # END OF GET HANDLER ------
+
+    # Attempt to prefill the form with any info
+    # the user maintains in their profile
+
+    # check if user is authenticated
+    if request.user.is_authenticated:
+        try:
+            # if so get the user profile = to profile
+            profile = UserProfile.objects.get(user=request.user)
+            # use the initial parameter on the order form to prefil all of its
+            # fields with relevant information (where is initial coming from??)
+            order_form = OrderForm(initial={
+                'full_name': profile.user.get_full_name(),
+                'email': profile.user.email,
+                'phone_number': profile.default_phone_number,
+                'country': profile.default_country,
+                'postcode': profile.default_postcode,
+                'town_or_city': profile.default_town_or_city,
+                'street_address1': profile.default_street_address1,
+                'street_address2': profile.default_street_address2,
+                'county': profile.default_county,
+            })
+            # if anything goes wrong - render an empty form
+        except UserProfile.DoesNotExist:
+            order_form = OrderForm()
+    else:
+        # if user is not authenticated - then just render an empty form
+        order_form = OrderForm()
 
     # Create a reminder in case we forget to set our public key
     if not stripe_public_key:
