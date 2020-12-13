@@ -1,5 +1,8 @@
 # so we can provide a http response
 from django.http import HttpResponse
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 from .models import Order, OrderLineItem
 from products.models import Product
@@ -7,7 +10,6 @@ from profiles.models import UserProfile
 
 import json
 import time
-
 
 class StripeWH_Handler:
     """Handle Stripe webhooks"""
@@ -19,6 +21,31 @@ class StripeWH_Handler:
         # need to access any of the attributes of the request coming from
         # stripe
         self.request = request
+
+    def _send_confirmation_email(self, order):
+        """Send the user a confirmation email"""
+
+        # get the customers email from the order and store it in a variable
+        cust_email = order.email
+        # use render to string to render both the txt email files to strings
+        # first param is the file we want to render and the second being a
+        # context - just like what we would pass to a template.
+        subject = render_to_string(
+            'checkout/confirmation_emails/confirmation_email_subject.txt',
+            {'order': order})
+        body = render_to_string(
+            'checkout/confirmation_emails/confirmation_email_body.txt',
+            {'order': order, 'contact_email': settings.DEFAULT_FROM_EMAIL})
+
+        # to send the email
+        send_mail(
+            subject,
+            body,
+            # email we are sending from
+            settings.DEFAULT_FROM_EMAIL,
+            # emails we are sending to
+            [cust_email]
+        )
 
     def handle_event(self, event):
         """
@@ -162,6 +189,15 @@ class StripeWH_Handler:
             # if the order is found - we will set order exists to True and
             # return a 200 response to stripe with a message that we have
             # verified the order already exists
+
+            # send an email to customer - If we found the order in the
+            # database because it was already created by the form. Let's
+            # send it just before returning that response to stripeIf we
+            # found the order in the database because it was already
+            # created by the form. Let's send it just before returning
+            # that response to stripe
+            self._send_confirmation_email(order)
+
             return HttpResponse(
                 content=f'Webhook received: {event["type"]} | SUCCESS: Verified order already in database',
                 status=200)
@@ -233,8 +269,13 @@ class StripeWH_Handler:
                 return HttpResponse(
                     content=f'Webhook received: {event["type"]} | ERROR: {e}',
                     status=500)
+
         # if we get to this stage in the code - we know that it was successful,
         # so we should return a message to stripe indicating that
+
+        # If the order was created by the webhook handler I'll send the email
+        # at the bottom here just before returning that response to stripe.
+        self._send_confirmation_email(order)
         return HttpResponse(
             content=f'Webhook received: {event["type"]} | SUCCESS: Created order in webhook',
             status=200)
