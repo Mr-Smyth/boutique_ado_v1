@@ -25,6 +25,7 @@ def profile(request):
             # add a success message (so import messages!)
             messages.success(request, 'Profile updated successfully')
         else:
+            # in the case where the form is not valid
             messages.error(request,
                            ('Update failed. Please ensure '
                             'the form is valid.'))

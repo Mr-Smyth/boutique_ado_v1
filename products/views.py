@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib import messages
 from django.db.models.functions import Lower
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q  # generates a search query
 from .models import Product, Category
+from .forms import ProductForm
 
 # Create your views here.
 
@@ -108,3 +110,43 @@ def product_detail(request, product_id):
     }
 
     return render(request, 'products/product_detail.html', context)
+
+
+@login_required
+def add_product(request):
+    """ Add a product to the store """
+    if not request.user.is_superuser:
+        messages.error(request, 'Sorry, only store owners can do that.')
+        return redirect(reverse('home'))
+
+    # if user is posting
+    if request.method == 'POST':
+        # instantiate a new instance of the product form from request.post and
+        # include request .files also In order to make sure to capture in the
+        # image of the product if one was submitted.
+        form = ProductForm(request.POST, request.FILES)
+        # if the form is valid
+        if form.is_valid():
+            # then save it
+            product = form.save()
+            # add a success message
+            messages.success(request, 'Successfully added product!')
+            # redirect to the same view
+            return redirect(reverse('product_detail', args=[product.id]))
+        else:
+            # if form is not valid - add a message
+            messages.error(request,
+                           ('Failed to add product. '
+                            'Please ensure the form is valid.'))
+    else:
+        # assign an empty instance of our form to the variable: form
+        form = ProductForm()
+
+    # tell it what template to use
+    template = 'products/add_product.html'
+    context = {
+        'form': form,
+    }
+
+    return render(request, template, context)
+
