@@ -127,11 +127,12 @@ def add_product(request):
         form = ProductForm(request.POST, request.FILES)
         # if the form is valid
         if form.is_valid():
-            # then save it
+            # then save it, to a variable called product - which we will use
+            # to go to this product once updated
             product = form.save()
             # add a success message
             messages.success(request, 'Successfully added product!')
-            # redirect to the same view
+            # redirect to product deatail page for the product you created
             return redirect(reverse('product_detail', args=[product.id]))
         else:
             # if form is not valid - add a message
@@ -150,3 +151,60 @@ def add_product(request):
 
     return render(request, template, context)
 
+
+@login_required
+def edit_product(request, product_id):
+    """ Edit a product in the store """
+    if not request.user.is_superuser:
+        messages.error(request, 'Sorry, only store owners can do that.')
+        return redirect(reverse('home'))
+
+    # prefill form by getting the product
+    product = get_object_or_404(Product, pk=product_id)
+    if request.method == 'POST':
+        # instantiate the form using the request.files and the product
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Successfully updated product!')
+            return redirect(reverse('product_detail', args=[product.id]))
+        else:
+            messages.error(request,
+                           ('Failed to update product. '
+                            'Please ensure the form is valid.'))
+    else:
+        # instantiate the form with the product user is editing
+        form = ProductForm(instance=product)
+        messages.info(request, f'You are editing {product.name}')
+
+    # tell it what template to use
+    template = 'products/edit_product.html'
+    # give in a context so that the form and the product will be in the
+    # template
+    context = {
+        'form': form,
+        'product': product,
+    }
+
+    return render(request, template, context)
+
+
+@login_required
+def delete_product(request, product_id):
+    """ Delete a product from the store
+    take the request
+    and the product id to be deleted.
+    But this one won't require a post handler
+    """
+    if not request.user.is_superuser:
+        messages.error(request, 'Sorry, only store owners can do that.')
+        return redirect(reverse('home'))
+
+    # get the product
+    product = get_object_or_404(Product, pk=product_id)
+    # call delete on this product
+    product.delete()
+    # add a success message
+    messages.success(request, 'Product deleted!')
+    # redirect back to products page
+    return redirect(reverse('products'))
