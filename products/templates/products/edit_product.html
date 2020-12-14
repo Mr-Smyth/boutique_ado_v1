@@ -27,6 +27,9 @@
                 <!-- send the product to the edit_product url and include the product id with it -->
                 <form method="POST" action="{% url 'edit_product' product.id %}" class="form mb-2" enctype="multipart/form-data">
                     {% csrf_token %}
+
+                    <!--  here we check if the field name is not image - this is because we do not need crispy forms rendering a label for an image 
+                        - we will know its an image -->
                     {% for field in form %}
                         {% if field.name != 'image' %}
                             {{ field | as_crispy_field }}
@@ -44,11 +47,15 @@
     </div>
 {% endblock %}
 
+<!-- Some js to notify the user of what the image will be changed to -->
 {% block postloadjs %}
     {{ block.super }}
     <script type="text/javascript">
+        /* listen to the change event on the new image input element  */
         $('#new-image').change(function() {
+            /* get the file that was added to it */
             var file = $('#new-image')[0].files[0];
+            /* set the filenames text in the widget template to the files name  */
             $('#filename').text(`Image will be set to: ${file.name}`);
         });
     </script>
