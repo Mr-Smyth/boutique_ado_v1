@@ -115,6 +115,8 @@ def product_detail(request, product_id):
 @login_required
 def add_product(request):
     """ Add a product to the store """
+
+    # check if user is a superuser
     if not request.user.is_superuser:
         messages.error(request, 'Sorry, only store owners can do that.')
         return redirect(reverse('home'))
