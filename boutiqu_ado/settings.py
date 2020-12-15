@@ -27,7 +27,9 @@ SECRET_KEY = '91$mfhcmk!q)%5mm*vl(=y%q#fnaf)2+7h1qb3d_p7*msado3f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# add the hostname of our Heroku app to allowed hosts in settings.py
+# add localhost in here so that gitpod will still work too.
+ALLOWED_HOSTS = ['mr-smyth-boutique-ado.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -132,12 +134,21 @@ LOGIN_REDIRECT_URL = '/'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# if database is running on heroku - where environ will be defined
+# use this (postgres)
+if 'DATABASE_URL' in os.environ:
+    DATABASES = {
+        # use dj_database_url to get the value of the Database Url
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
-}
+# Otherwise we are local - So use this(sqlLite):
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
