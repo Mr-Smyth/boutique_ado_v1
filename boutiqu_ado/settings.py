@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
     # Other
     'crispy_forms',
+    'storages',
 
 ]
 
@@ -196,6 +197,38 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 MEDIA_URL = '/media/'
 # THIS IS WHERE ALL MEDIA FILES WILL GO
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# AWS LINK SETTINGS
+# WE ONLY WANT TO USE AWS IF WE ARE ON HEROKU - SO WE IF
+if 'USE_AWS' in os.environ:
+    # --- Bucket Config
+    AWS_STORAGE_BUCKET_NAME = 'mr-smyth-boutique-ado'
+    AWS_S3_REGION_NAME = 'eu-west-2'
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    # tell django where our image files will be coming from in production
+    # it will be our bucket name(above) followed by .s3.amazonaws.com'
+    # this will use an f string to generate a url
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+    # --- Static and media files
+    # Tell it that for static file storage we want to use our storage class we
+    # just created
+    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+    # And that the location it should save static files is a folder called
+    # static.
+    STATICFILES_LOCATION = 'static'
+    # And then do the same thing for media files by using the default file
+    # storage, and media files location settings.
+    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+    # And that the location it should save static files is a folder called
+    # media.
+    MEDIAFILES_LOCATION = 'media'
+
+    # We also need to override and explicitly set the URLs for static and
+    # media files, using our custom domain and the new locations.
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
 
 # Stripe
 FREE_DELIVERY_THRESHOLD = 50
