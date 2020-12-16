@@ -201,6 +201,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # AWS LINK SETTINGS
 # WE ONLY WANT TO USE AWS IF WE ARE ON HEROKU - SO WE IF
 if 'USE_AWS' in os.environ:
+
+    # Cache control
+    AWS_S3_OBJECT_PARAMETERS = {
+        'Expires': 'Thu, 31 Dec 2099 20:00:00 GMT',
+        'CacheControl': 'max-age=94608000',
+    }
+
     # --- Bucket Config
     AWS_STORAGE_BUCKET_NAME = 'mr-smyth-boutique-ado'
     AWS_S3_REGION_NAME = 'eu-west-2'
